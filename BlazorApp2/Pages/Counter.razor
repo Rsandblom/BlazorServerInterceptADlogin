@@ -1,0 +1,63 @@
+﻿@page "/counter"
+@using System.Security.Claims;
+@using BlazorApp2.Data;
+@using Microsoft.AspNetCore.Authentication.Cookies;
+@using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+@using Microsoft.AspNetCore.Authentication;
+@using Microsoft.AspNetCore.Http
+@inject IAccountService _accountService
+@inject NavigationManager _navigationManager
+@inject HttpClient httpClient;
+
+@attribute [AllowAnonymous]
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+@if (string.IsNullOrEmpty(userName))
+{
+    <h1>@userName</h1>
+}
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<button class="btn btn-primary" @onclick="LogMeIn">Log me in</button>
+
+@code {
+    private int currentCount = 0;
+    private string userName;
+
+    //[Inject]
+    //public HttpClient httpClient { get; set; }
+    [CascadingParameter]
+    public Task<AuthenticationState> AuthenticationStateTask { get; set; }
+    //[Inject]
+    //public AuthenticationState authenticationState { get; set; }
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+    private async Task LogMeIn()
+    {
+        //await _accountService.LogMeIn();
+        var result = await httpClient.PostAsync("https://localhost:7027/api/auth/signin", null);
+        //_navigationManager.NavigateTo("/api/auth/signin", true);
+
+        if (result.IsSuccessStatusCode)
+        {
+            _navigationManager.NavigateTo("/");
+
+        }
+
+        //var test = await AuthenticationStateTask;
+        //var user = test.User;
+        //var name = user.Identity.Name;
+
+        
+      
+    }
+}
